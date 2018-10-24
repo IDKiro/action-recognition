@@ -10,7 +10,7 @@ pytorch 0.4.1 (CUDA 9.0):
 
 [https://pytorch.org/](https://pytorch.org/)
 
-## 数据处理
+## 数据结构
 
 本项目的训练数据结构如下：
 
