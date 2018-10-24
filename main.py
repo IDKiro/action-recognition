@@ -41,7 +41,7 @@ parser.add_argument('--hidden_size', default=512, type=int, metavar='HIDDEN',
 parser.add_argument('--lr_step', default=10, type=float,
 					help='learning rate decay frequency')
 parser.add_argument('--optim', '--optimizer', default='sgd',type=str,
-					help='optimizer: sgd | adam')
+					help='optimizer')
 parser.add_argument('--fc_size', default=1024, type=int,
 					help='size of fully connected layer before LSTM')
 
@@ -124,7 +124,6 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 
 class AverageMeter(object):
-	'''computes and stores the average and current value'''
 	def __init__(self):
 		self.reset()
 
@@ -142,7 +141,6 @@ class AverageMeter(object):
 
 
 def adjust_learning_rate(optimizer, epoch):
-    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
     if not epoch % args.lr_step and epoch:
     	for param_group in optimizer.param_groups:
     		param_group['lr'] = param_group['lr'] * 0.1
@@ -150,7 +148,6 @@ def adjust_learning_rate(optimizer, epoch):
 
 
 def accuracy(output, target, topk=(1,)):
-    """Computes the precision@k for the specified values of k"""
     maxk = max(topk)
     batch_size = target.size(0)
 
@@ -225,6 +222,12 @@ def main():
 									lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
 	elif args.optim == 'adam':
 		optimizer = torch.optim.Adam([{'params': model.features.parameters(), 'lr': args.lr}, 
+									{'params': model.fc_pre.parameters()}, 
+									{'params': model.rnn.parameters()}, {'params': model.fc.parameters()}],
+									lr=args.lr, weight_decay=args.weight_decay)
+
+	elif args.optim == 'rmsprop':
+		optimizer = torch.optim.RMSprop([{'params': model.features.parameters(), 'lr': args.lr}, 
 									{'params': model.fc_pre.parameters()}, 
 									{'params': model.rnn.parameters()}, {'params': model.fc.parameters()}],
 									lr=args.lr, weight_decay=args.weight_decay)
