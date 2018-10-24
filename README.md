@@ -65,7 +65,7 @@ python split_data.py train_root_directory valid_root_directory
 
 ## Start
 
-Use the following commands to train the model:
+Use the following command to train the model:
 
 ```
 python train.py data
