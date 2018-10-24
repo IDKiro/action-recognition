@@ -9,7 +9,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 import dataset
-from lstm_arch import *
+from model import *
 from train_options import parser
 
 def train(train_loader, model, criterion, optimizer, epoch):

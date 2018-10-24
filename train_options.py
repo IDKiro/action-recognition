@@ -7,8 +7,8 @@ parser.add_argument('data', metavar = 'DIR', help = 'path to dataset')
 parser.add_argument('--model', default='', type=str, metavar = 'DIR', help = 'path to model')
 parser.add_argument('--epochs', default=90, type=int, metavar='N', 
 					help='manual epoch number' + ' (default: 90)')
-parser.add_argument('--lr', default=0.01, type=float,
-                    metavar='LR', help='initial learning rate' + ' (default: 0.01)')
+parser.add_argument('--lr', default=0.001, type=float,
+                    metavar='LR', help='initial learning rate' + ' (default: 0.001)')
 parser.add_argument('--optim', default='rmsprop',type=str,
 					help='optimizer' + ' (default: rmsprop)')
 

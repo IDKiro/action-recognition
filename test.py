@@ -8,7 +8,7 @@ from torchvision import transforms, utils
 from torch.autograd import Variable
 
 import dataset
-from lstm_arch import *
+from model import *
 
 
 parser = argparse.ArgumentParser(description = 'Testing')
