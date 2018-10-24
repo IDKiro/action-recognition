@@ -39,7 +39,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 		loss.backward()
 		optimizer.step()
 		
-		if i % 10 == 0:
+		if i % 100 == 0:
 			print('Epoch: [{0}][{1}/{2}]\t'
 				'lr {lr:.5f}\t'
 				'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
@@ -73,7 +73,7 @@ def validate(val_loader, model, criterion):
 		losses.update(loss.item(), input.size(0))
 		top.update(prec[0], input.size(0))
 
-		if i % 10 == 0:
+		if i % 100 == 0:
 			print ('Test: [{0}/{1}]\t'
 					'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
 					i, len(val_loader), loss=losses
@@ -214,6 +214,8 @@ def main():
 
 		# evaluate on validation set
 		prec = validate(val_loader, model, criterion)
+
+		print("Validation accuracy: {} %".format(prec[0]))
 
 		# remember best prec@1 and save checkpoint
 		is_best = prec > best_prec
