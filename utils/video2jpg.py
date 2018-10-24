@@ -21,8 +21,8 @@ def class_process(dir_path, dst_dir_path, class_name, maxSize=512):
 		video_file_path = os.path.join(class_path, file_name)
 
 		# skip large files
-		if os.path.getsize(video_file_path) > maxSize * 1000:
-			continue
+		# if os.path.getsize(video_file_path) > maxSize * 1000:
+		#	continue
 
 		try:
 			if os.path.exists(dst_directory_path):
