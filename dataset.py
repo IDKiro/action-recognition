@@ -9,9 +9,6 @@ from torchvision import transforms, utils
 
 class CLMarshallingDataset(Dataset):
 	def __init__(self, root_dir, transform=None):
-		'''
-		structure of root_dir: 'root_dir/class_i/video_i/img_i.jpg'
-		'''
 		self.root_dir = root_dir
 		self.transform = transform
 		self.classes = sorted(os.listdir(self.root_dir))

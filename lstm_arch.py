@@ -24,25 +24,6 @@ class FineTuneLstmModel(nn.Module):
 			self.fc = nn.Linear(hidden_size, num_classes)
 			self.modelName = 'alexnet_lstm'
 
-		elif arch.startswith('vgg16'):
-			self.features = original_model.features
-			self.rnn = nn.LSTM(input_size = 25088,
-						hidden_size = hidden_size,
-						num_layers = lstm_layers,
-						batch_first = True)
-			self.fc = nn.Linear(hidden_size, num_classes)
-			self.modelName = 'vgg16_lstm'
-
-		elif arch.startswith('resnet18'):
-			# except the last linear layer
-			self.features = nn.Sequential(*list(original_model.children())[:-1])
-			self.rnn = nn.LSTM(input_size = 512,
-						hidden_size = hidden_size,
-						num_layers = lstm_layers,
-						batch_first = True)
-			self.fc = nn.Linear(hidden_size, num_classes)
-			self.modelName = 'resnet_lstm'
-
 		else:
 			raise Exception("This architecture has not been supported yet")
 
@@ -51,9 +32,6 @@ class FineTuneLstmModel(nn.Module):
 				Variable(torch.zeros(num_layers, batch_size, self.hidden_size)).cuda())
 
 	def forward(self, inputs, hidden=None, steps=0):
-		'''
-		inputs: sequence of images 
-		'''
 		length = len(inputs)
 		fs = Variable(torch.zeros(length, self.rnn.input_size)).cuda()
 		for i in range(length):

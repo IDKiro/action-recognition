@@ -12,42 +12,39 @@ import torch.nn.functional as F
 import dataset
 from lstm_arch import *
 
-model_names = sorted(name for name in models.__dict__
-	if name.islower() and not name.startswith('__'))
-
 parser = argparse.ArgumentParser(description = 'Training')
+
+# important parameter
 parser.add_argument('data', metavar = 'DIR', help = 'path to dataset')
-parser.add_argument('--arch', '-a', metavar = 'ARCH', default = 'alexnet',
-					choices = model_names, help = 'model architecture: ' + 
-					' | '.join(model_names) + ' (default: alexnet)')
-parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
-                    help='number of data loading workers (default: 8)')
+parser.add_argument('--model', default='', type=str, metavar = 'DIR', help = 'path to model')
 parser.add_argument('--epochs', default=90, type=int, metavar='N', 
-					help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=1, type=int,
-                    metavar='N', help='mini-batch size (default: 256)')
-parser.add_argument('--lr', '--learning-rate', default=0.01, type=float,
-                    metavar='LR', help='initial learning rate')
+					help='manual epoch number' + ' (default: 90)')
+parser.add_argument('--lr', default=0.01, type=float,
+                    metavar='LR', help='initial learning rate' + ' (default: 0.01)')
+parser.add_argument('--optim', default='rmsprop',type=str,
+					help='optimizer' + ' (default: rmsprop)')
+
+# parameters for sgd
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
-                    help='momentum')
-parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
+                    help='momentum' + ' (default: 0.9)')
+parser.add_argument('--lr_step', default=30, type=float,
+					help='learning rate decay frequency' + ' (default: 30)')
+
+# optional parameters
+parser.add_argument('--arch', metavar = 'ARCH', default = 'alexnet', 
+					help = 'model architecture' + ' (default: alexnet)')
+parser.add_argument('--workers', default=8, type=int, metavar='N',
+                    help='number of data loading workers (default: 8)')
+parser.add_argument('--batch-size', default=1, type=int,
+                    metavar='N', help='mini-batch size' + ' (default: 1)')
+parser.add_argument('--weight-decay', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
-parser.add_argument('--pretrained', dest='pretrained', action='store_true',
-					help='use pre-trained model')
-parser.add_argument('--lstm_layers', default=1, type=int, metavar='LSTM',
-					help='number of lstm layers')
-parser.add_argument('--hidden_size', default=512, type=int, metavar='HIDDEN',
-					help='output size of LSTM hidden layers')
-parser.add_argument('--lr_step', default=10, type=float,
-					help='learning rate decay frequency')
-parser.add_argument('--optim', '--optimizer', default='sgd',type=str,
-					help='optimizer')
-parser.add_argument('--fc_size', default=1024, type=int,
-					help='size of fully connected layer before LSTM')
-
-best_prec = 0
-
-
+parser.add_argument('--lstm-layers', default=1, type=int, metavar='LSTM',
+					help='number of lstm layers' + ' (default: 1)')
+parser.add_argument('--hidden-size', default=512, type=int, metavar='HIDDEN',
+					help='output size of LSTM hidden layers' + ' (default: 512)')
+parser.add_argument('--fc-size', default=1024, type=int,
+					help='size of fully connected layer before LSTM' + ' (default: 1024)')
 
 def train(train_loader, model, criterion, optimizer, epoch):
 	losses = AverageMeter()
@@ -75,12 +72,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
 		# compute gradient
 		loss.backward()
 		optimizer.step()
-
-		print('Epoch: [{0}][{1}/{2}]\t'
-			'lr {lr:.5f}\t'
-			'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
-			epoch, i, len(train_loader), lr=optimizer.param_groups[-1]['lr'],
-			loss=losses))
+		
+		if i % 10 == 0:
+			print('Epoch: [{0}][{1}/{2}]\t'
+				'lr {lr:.5f}\t'
+				'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
+				epoch, i, len(train_loader), lr=optimizer.param_groups[-1]['lr'],
+				loss=losses))
 
 
 def validate(val_loader, model, criterion):
@@ -109,10 +107,11 @@ def validate(val_loader, model, criterion):
 		losses.update(loss.item(), input.size(0))
 		top.update(prec[0], input.size(0))
 
-		print ('Test: [{0}/{1}]\t'
-				'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
-				i, len(val_loader), loss=losses
-				))
+		if i % 10 == 0:
+			print ('Test: [{0}/{1}]\t'
+					'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
+					i, len(val_loader), loss=losses
+					))
 
 	return top.avg
 
@@ -121,7 +120,6 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, './data/save_model/' + filename)
     if is_best:
         shutil.copyfile('./data/save_model/' + filename, './data/save_model/model_best.pth.tar')
-
 
 class AverageMeter(object):
 	def __init__(self):
@@ -164,7 +162,9 @@ def accuracy(output, target, topk=(1,)):
 
 
 def main():
-	global args, best_prec 
+	global args
+
+	best_prec = 0
 	args = parser.parse_args()
 
 	# Data Transform and data loading
@@ -198,18 +198,25 @@ def main():
 		batch_size=args.batch_size, shuffle=False,
 		num_workers=args.workers, pin_memory=True)
 
-	# load and create model
-	print("==> creating model '{}' ".format(args.arch))
-	if args.pretrained:
-		print("==> using pre-trained model '{}' ".format(args.arch))
+	if os.path.exists(args.model):
+		# load existing model
+		model_info = torch.load(args.model)
+		print("==> loading existing model '{}' ".format(model_info['arch']))
+		original_model = models.__dict__[model_info['arch']](pretrained=False)
+		model = FineTuneLstmModel(original_model, model_info['arch'],
+			model_info['num_classes'], model_info['lstm_layers'], model_info['hidden_size'], model_info['fc_size'])
+		print(model)
+		model.cuda()
+		model.load_state_dict(model_info['state_dict'])
+	else:
+		# load and create model
+		print("==> creating model '{}' ".format(args.arch))
 
-	original_model = models.__dict__[args.arch](pretrained=args.pretrained)	
-	model = FineTuneLstmModel(original_model, args.arch, 
-		len(train_dataset.classes), args.lstm_layers, args.hidden_size, args.fc_size)
-	
-	print(model)
-
-	model.cuda()
+		original_model = models.__dict__[args.arch](pretrained=True)	
+		model = FineTuneLstmModel(original_model, args.arch, 
+			len(train_dataset.classes), args.lstm_layers, args.hidden_size, args.fc_size)
+		print(model)
+		model.cuda()
 
 	# loss criterion and optimizer
 	criterion = nn.CrossEntropyLoss(reduction='none')
@@ -250,6 +257,7 @@ def main():
 		save_checkpoint({
 			'epoch': epoch + 1,
 			'arch': args.arch,
+			'num_classes': len(train_dataset.classes),
 			'lstm_layers': args.lstm_layers,
 			'hidden_size': args.hidden_size,
 			'fc_size': args.fc_size,
