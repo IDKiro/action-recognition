@@ -108,4 +108,4 @@ python test.py data/save_model/model_best.pth.tar test_data
 
 整个神经网络的结构可以认为是 CNN 特征提取器 和 LSTMs 的组合，默认情况下设置 LSTMs 的层数为一层。 
 
-![](imgs/lstm.jpg)
+![](/imgs/lstm.jpg)
