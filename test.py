@@ -34,7 +34,7 @@ def validate(val_loader, model, criterion):
 		input_var, target_var = input_var.cuda(), target_var.cuda()
 
 		# compute output
-		output, _ = model(input_var[0])
+		output = model(input_var[0])
 		weight = Variable(torch.Tensor(range(output.shape[0])) / (output.shape[0] - 1)).cuda()
 		output = torch.sum(output * weight.unsqueeze(1), dim=0, keepdim=True)
 		loss = criterion(output, target_var)

@@ -44,4 +44,4 @@ class FineTuneLstmModel(nn.Module):
 
 		outputs, hidden = self.rnn(fs, hidden)
 		outputs = self.fc(outputs[0])
-		return outputs, hidden
+		return outputs
