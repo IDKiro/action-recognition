@@ -1,6 +1,6 @@
 # 基于 LSTM 的行为识别
 
-[训练细节](/docs/trainlog.md)
+[训练细节](/docs/log.md)
 
 ## 依赖
 
