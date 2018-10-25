@@ -106,6 +106,4 @@ This project is based on CNNs and LSTMs.
 
 ## Reference
 
-[https://github.com/siqinli/GestureRecognition-PyTorch.git](https://github.com/siqinli/GestureRecognition-PyTorch.git)
-
 [https://github.com/chaoyuaw/pytorch-coviar.git](https://github.com/chaoyuaw/pytorch-coviar.git)

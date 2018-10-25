@@ -108,6 +108,4 @@ python test.py data/save_model/model_best.pth.tar test_data
 
 ## 参考
 
-[https://github.com/siqinli/GestureRecognition-PyTorch.git](https://github.com/siqinli/GestureRecognition-PyTorch.git)
-
 [https://github.com/chaoyuaw/pytorch-coviar.git](https://github.com/chaoyuaw/pytorch-coviar.git)

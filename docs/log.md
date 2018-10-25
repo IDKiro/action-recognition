@@ -6,9 +6,7 @@
 2. 实现方式较为复杂或者实现方式不是 LSTM
 3. 对硬件设备的要求过高
 
-最后在参考了一些基础的 LSTM 后，进行了神经网络的实现。训练框架采用 PyTorch，参考了一些 repo 的代码：
-
-[https://github.com/siqinli/GestureRecognition-PyTorch.git](https://github.com/siqinli/GestureRecognition-PyTorch.git)
+最后在参考了一些基础的 LSTM 后，进行了神经网络的实现。训练框架采用 PyTorch，参考了以下 repo 的代码：
 
 [https://github.com/chaoyuaw/pytorch-coviar.git](https://github.com/chaoyuaw/pytorch-coviar.git)
 
