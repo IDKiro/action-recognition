@@ -26,11 +26,10 @@ def train(train_loader, model, criterion, optimizer, epoch):
 		input_var, target_var = input_var.cuda(), target_var.cuda()
 		# compute output
 		output = model(input_var[0])
-		
-		target_var = target_var.repeat(output.shape[0])
-		loss_t = criterion(output, target_var)
-		weight = Variable(torch.Tensor(range(output.shape[0])) / (output.shape[0] - 1)).cuda()
-		loss = torch.mean(loss_t * weight)
+		weight = Variable(torch.Tensor(range(output.shape[0])) / sum(range(output.shape[0]))).cuda().view(-1,1).repeat(1, output.shape[1])
+		output = torch.mul(output, weight)
+		output = torch.mean(output, dim=0).unsqueeze(0)
+		loss = criterion(output, target_var)
 		
 		losses.update(loss.item(), input.size(0))
 
@@ -65,8 +64,9 @@ def validate(val_loader, model, criterion):
 
 		# compute output
 		output = model(input_var[0])
-		weight = Variable(torch.Tensor(range(output.shape[0])) / (output.shape[0] - 1)).cuda()
-		output = torch.sum(output * weight.unsqueeze(1), dim=0, keepdim=True)
+		weight = Variable(torch.Tensor(range(output.shape[0])) / sum(range(output.shape[0]))).cuda().view(-1,1).repeat(1, output.shape[1])
+		output = torch.mul(output, weight)
+		output = torch.mean(output, dim=0).unsqueeze(0)
 		loss = criterion(output, target_var)
 
 		# measure accuracy and record loss

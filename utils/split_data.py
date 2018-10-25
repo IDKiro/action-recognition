@@ -17,7 +17,7 @@ def class_process(dir_path, valid_dir_path, class_name):
 		train_directory_path = os.path.join(class_path, name)
 		valid_directory_path = os.path.join(valid_class_path, name)
 
-		if i % 5 == 0:
+		if i % 10 == 0:
 			shutil.move(train_directory_path, valid_directory_path)
 
 

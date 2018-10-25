@@ -57,14 +57,6 @@ video_data/
 python video2jpg.py video_root_directory image_root_directory
 ```
 
-转换时考虑到训练集的训练时间和可能会有的 out of memory 问题，增加了处理函数的输入参量，可以指定最大文件尺寸跳过了部分较大的文件：
-
-```python
-# skip large files
-if os.path.getsize(video_file_path) > maxSize * 1000:
-    continue
-```
-
 虽然数据集经过处理已经可以作为神经网络的输入，但是还需要将训练集进行划分，分为训练集和交叉验证集，所以编写了 `split_data.py`：
 
 ```
