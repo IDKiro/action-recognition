@@ -100,11 +100,9 @@ python test.py data/save_model/model_best.pth.tar test_data
 
 This project is based on CNNs and LSTMs. 
 
-<center>
-
-![](/imgs/lstm.jpg)
-
-</center>
+<div align="center">
+  <img src="imgs/lstm.jpg">
+</div>
 
 ## Reference
 
