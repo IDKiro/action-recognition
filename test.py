@@ -30,7 +30,6 @@ def validate(val_loader, model, criterion):
 		# target = target.cuda(async=True)
 		input_var = torch.autograd.Variable(input)
 		target_var = torch.autograd.Variable(target)
-
 		input_var, target_var = input_var.cuda(), target_var.cuda()
 
 		# compute output

@@ -22,19 +22,19 @@ def train(train_loader, model, criterion, optimizer, epoch):
 		# wrap inputs and targets in Variable
 		input_var = torch.autograd.Variable(input)
 		target_var = torch.autograd.Variable(target)
-
 		input_var, target_var = input_var.cuda(), target_var.cuda()
+
 		# compute output
 		output = model(input_var[0])
 		weight = Variable(torch.Tensor(range(output.shape[0])) / sum(range(output.shape[0]))).cuda().view(-1,1).repeat(1, output.shape[1])
 		output = torch.mul(output, weight)
 		output = torch.mean(output, dim=0).unsqueeze(0)
-		loss = criterion(output, target_var)
-		
+		loss = criterion(output, target_var)	
 		losses.update(loss.item(), input.size(0))
 
 		# zero the parameter gradients
 		optimizer.zero_grad()
+
 		# compute gradient
 		loss.backward()
 		optimizer.step()
@@ -59,7 +59,6 @@ def validate(val_loader, model, criterion):
 		# target = target.cuda(async=True)
 		input_var = torch.autograd.Variable(input)
 		target_var = torch.autograd.Variable(target)
-
 		input_var, target_var = input_var.cuda(), target_var.cuda()
 
 		# compute output
