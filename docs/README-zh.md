@@ -1,5 +1,7 @@
 # 基于 LSTM 的行为识别
 
+[训练细节](/docs/trainlog.md)
+
 ## 依赖
 
 Python 3.6.5 (Anaconda 5.2.0):
