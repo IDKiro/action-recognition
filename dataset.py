@@ -7,7 +7,7 @@ import PIL.Image as Image
 from torch.utils.data import Dataset
 from torchvision import transforms, utils
 
-class CLMarshallingDataset(Dataset):
+class loadedDataset(Dataset):
 	def __init__(self, root_dir, transform=None):
 		self.root_dir = root_dir
 		self.transform = transform

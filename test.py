@@ -105,7 +105,7 @@ def main():
 				)
 
 	test_loader = torch.utils.data.DataLoader(
-		dataset.CLMarshallingDataset(testdir, transform),
+		dataset.loadedDataset(testdir, transform),
 		batch_size=1, shuffle=False,
 		num_workers=8, pin_memory=True)
 
@@ -114,7 +114,7 @@ def main():
 		model_info = torch.load(args.model)
 		print("==> loading existing model '{}' ".format(model_info['arch']))
 		original_model = models.__dict__[model_info['arch']](pretrained=False)
-		model = FineTuneLstmModel(original_model, model_info['arch'],
+		model = LSTMModel(original_model, model_info['arch'],
 			model_info['num_classes'], model_info['lstm_layers'], model_info['hidden_size'], model_info['fc_size'])
 		print(model)
 		model.cuda()

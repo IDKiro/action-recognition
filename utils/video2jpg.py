@@ -39,7 +39,7 @@ def class_process(dir_path, dst_dir_path, class_name, maxSize=1024):
 			continue
 	
 		# cmd = 'ffmpeg -i \"{}\" -vf scale=-1:240 \"{}/image_%05d.jpg\"'.format(video_file_path, dst_directory_path)
-		cmd = 'ffmpeg -i \"{}\" -s 320x240 -t 00:00:10 -qscale:v 2 \"{}/image_%05d.jpg\"'.format(video_file_path, dst_directory_path)
+		cmd = 'ffmpeg -i \"{}\" -qscale:v 2 \"{}/image_%05d.jpg\"'.format(video_file_path, dst_directory_path)
 		
 		print(cmd)
 		subprocess.call(cmd, shell=True)

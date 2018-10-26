@@ -75,19 +75,19 @@ Optional parameters of command:
 
 ```
 --model DIR           path to model
---epochs N            manual epoch number (default: 90)
---lr LR               initial learning rate (default: 0.01)
---optim OPTIM         optimizer (default: rmsprop)
---momentum M          momentum (default: 0.9)
---lr_step LR_STEP     learning rate decay frequency (default: 30)
 --arch ARCH           model architecture (default: alexnet)
---workers N           number of data loading workers (default: 8)
---batch-size N        mini-batch size (default: 1)
---weight-decay W      weight decay (default: 1e-4)
 --lstm-layers LSTM    number of lstm layers (default: 1)
 --hidden-size HIDDEN  output size of LSTM hidden layers (default: 512)
 --fc-size FC_SIZE     size of fully connected layer before LSTM (default:
                       1024)
+--epochs N            manual epoch number (default: 100)
+--lr LR               initial learning rate (default: 0.001)
+--optim OPTIM         optimizer (default: sgd)
+--momentum M          momentum (default: 0.9)
+--lr-step LR_STEP     learning rate decay frequency (default: 30)
+--batch-size N        mini-batch size (default: 1)
+--weight-decay W      weight decay (default: 1e-4)
+--workers N           number of data loading workers (default: 8)
 ```
 
 Use the following commands to test:

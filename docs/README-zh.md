@@ -75,19 +75,19 @@ python train.py data
 
 ```
 --model DIR           path to model
---epochs N            manual epoch number (default: 90)
---lr LR               initial learning rate (default: 0.01)
---optim OPTIM         optimizer (default: rmsprop)
---momentum M          momentum (default: 0.9)
---lr_step LR_STEP     learning rate decay frequency (default: 30)
 --arch ARCH           model architecture (default: alexnet)
---workers N           number of data loading workers (default: 8)
---batch-size N        mini-batch size (default: 1)
---weight-decay W      weight decay (default: 1e-4)
 --lstm-layers LSTM    number of lstm layers (default: 1)
 --hidden-size HIDDEN  output size of LSTM hidden layers (default: 512)
 --fc-size FC_SIZE     size of fully connected layer before LSTM (default:
                       1024)
+--epochs N            manual epoch number (default: 100)
+--lr LR               initial learning rate (default: 0.001)
+--optim OPTIM         optimizer (default: sgd)
+--momentum M          momentum (default: 0.9)
+--lr-step LR_STEP     learning rate decay frequency (default: 30)
+--batch-size N        mini-batch size (default: 1)
+--weight-decay W      weight decay (default: 1e-4)
+--workers N           number of data loading workers (default: 8)
 ```
 
 输入指令开始测试：
@@ -98,7 +98,7 @@ python test.py data/save_model/model_best.pth.tar test_data
 
 ## 神经网络的设计
 
-本项目基于 CNN 和 LSTM，其中 CNN 部分使用了 PyTorch repo 的预训练网络，默认使用 AlexNet 的微调网络。
+本项目基于 CNN 和 LSTM，其中 CNN 部分使用了 PyTorch 的预训练网络，默认使用 AlexNet。
 
 整个神经网络的结构可以认为是 CNN 特征提取器 和 LSTMs 的组合，默认情况下设置 LSTMs 的层数为一层。 
 
