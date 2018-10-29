@@ -50,8 +50,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
 			print('Epoch: [{0}][{1}/{2}]\t'
 				'lr {lr:.5f}\t'
 				'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+				'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
 				epoch, i, len(train_loader),
 				lr=optimizer.param_groups[-1]['lr'],
 				loss=losses,
@@ -90,8 +90,8 @@ def validate(val_loader, model, criterion):
 		if i % 10 == 0:
 			print ('Test: [{0}/{1}]\t'
 					'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-					'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-					'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+					'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
+					'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
 					i, len(val_loader),
 					loss=losses,
 					top1=top1,
@@ -237,9 +237,11 @@ def main():
 		# evaluate on validation set
 		prec = validate(val_loader, model, criterion)
 
-		print("Validation accuracy: {} %".format(prec.item()))
+		print("---------Validation---------")
+		print("      Accuracy: {} %".format(prec.item()))
+		print("----------------------------")
 
-		# remember best prec@1 and save checkpoint
+		# remember best top1 accuracy and save checkpoint
 		is_best = prec > best_prec
 		best_prec = max(prec, best_prec)
 		save_checkpoint({
