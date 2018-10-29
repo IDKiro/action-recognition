@@ -222,7 +222,7 @@ def main():
 		print("Validation accuracy: {} %".format(prec[0]))
 
 		# remember best prec@1 and save checkpoint
-		is_best = prec >= best_prec
+		is_best = prec > best_prec
 		best_prec = max(prec, best_prec)
 		save_checkpoint({
 			'epoch': epoch + 1,
