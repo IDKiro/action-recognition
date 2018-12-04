@@ -1,6 +1,6 @@
 # Add by user
 data/
-mini_data/
+*_data/
 .vscode/
 
 # Byte-compiled / optimized / DLL files

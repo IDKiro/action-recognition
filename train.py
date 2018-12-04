@@ -193,6 +193,7 @@ def main():
 		model.cuda()
 		model.load_state_dict(model_info['state_dict'])
 		best_prec = model_info['best_prec']
+		cur_epoch = model_info['epoch']
 	else:
 		# load and create model
 		print("==> creating model '{}' ".format(args.arch))
@@ -202,6 +203,7 @@ def main():
 			len(train_dataset.classes), args.lstm_layers, args.hidden_size, args.fc_size)
 		print(model)
 		model.cuda()
+		cur_epoch = 0
 
 	# loss criterion and optimizer
 	criterion = nn.CrossEntropyLoss(reduction='none')
@@ -227,19 +229,23 @@ def main():
 
 
 	# Training on epochs
-	for epoch in range(args.epochs):
+	for epoch in range(cur_epoch, args.epochs):
 
 		optimizer = adjust_learning_rate(optimizer, epoch)
+
+		print("---------------------------------------------------Training---------------------------------------------------")
 
 		# train on one epoch
 		train(train_loader, model, criterion, optimizer, epoch)
 
+		print("--------------------------------------------------Validation--------------------------------------------------")
+
 		# evaluate on validation set
 		prec = validate(val_loader, model, criterion)
 
-		print("---------Validation---------")
+		print("------Validation Result------")
 		print("      Accuracy: {} %".format(prec.item()))
-		print("----------------------------")
+		print("-----------------------------")
 
 		# remember best top1 accuracy and save checkpoint
 		is_best = prec > best_prec
