@@ -244,7 +244,7 @@ def main():
 		prec = validate(val_loader, model, criterion)
 
 		print("------Validation Result------")
-		print("      Accuracy: {} %".format(prec.item()))
+		print("      Accuracy: {prec: .2f} %".format(prec=prec.item()))
 		print("-----------------------------")
 
 		# remember best top1 accuracy and save checkpoint
