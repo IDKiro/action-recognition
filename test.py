@@ -20,7 +20,8 @@ parser.add_argument('data', metavar = 'DIR', help = 'path to dataset')
 
 def validate(val_loader, model, criterion):
 	losses = AverageMeter()
-	top = AverageMeter()
+	top1 = AverageMeter()
+	top5 = AverageMeter()
 
 	# switch to evaluate mode
 	model.eval()
@@ -38,18 +39,19 @@ def validate(val_loader, model, criterion):
 		output = torch.mul(output, weight)
 		output = torch.mean(output, dim=0).unsqueeze(0)
 		loss = criterion(output, target_var)
+		losses.update(loss.item(), input.size(0))
 
 		# measure accuracy and record loss
-		prec = accuracy(output.data.cpu(), target)
-		losses.update(loss.item(), input.size(0))
-		top.update(prec[0], input.size(0))
+		prec1, prec5 = accuracy(output.data.cpu(), target, topk=(1, 5))
+		top1.update(prec1[0], input.size(0))
+		top5.update(prec5[0], input.size(0))
 
 		print ('Test: [{0}/{1}]\t'
 			'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
 			i, len(val_loader), loss=losses
 			))
 
-	return top.avg
+	return (top1.avg, top5.avg)
 
 class AverageMeter(object):
 	def __init__(self):
@@ -127,9 +129,12 @@ def main():
 	criterion = nn.CrossEntropyLoss(reduction='none')
 	criterion = criterion.cuda()
 
-	prec = validate(test_loader, model, criterion)
+	prec1, prec5 = validate(test_loader, model, criterion)
 
-	print("Test accuracy: {} %".format(prec[0]))
+	print("---------Test Result---------")
+	print("   Top1 accuracy: {prec: .2f} %".format(prec=prec1.item()))
+	print("   Top5 accuracy: {prec: .2f} %".format(prec=prec5.item()))
+	print("-----------------------------")
 		
 if __name__ == '__main__':
 	main()
