@@ -97,7 +97,7 @@ def validate(val_loader, model, criterion):
 					top1=top1,
                     top5=top5))
 
-	return top1.avg
+	return (top1.avg, top5.avg)
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, os.path.join(args.data, 'save_model', filename))
@@ -241,15 +241,16 @@ def main():
 		print("--------------------------------------------------Validation--------------------------------------------------")
 
 		# evaluate on validation set
-		prec = validate(val_loader, model, criterion)
+		prec1, prec5 = validate(val_loader, model, criterion)
 
-		print("------Validation Result------")
-		print("      Accuracy: {prec: .2f} %".format(prec=prec.item()))
+		print("---------Test Result---------")
+		print("   Top1 accuracy: {prec: .2f} %".format(prec=prec1.item()))
+		print("   Top5 accuracy: {prec: .2f} %".format(prec=prec5.item()))
 		print("-----------------------------")
 
 		# remember best top1 accuracy and save checkpoint
-		is_best = prec > best_prec
-		best_prec = max(prec, best_prec)
+		is_best = prec1 > best_prec
+		best_prec = max(prec1, best_prec)
 		save_checkpoint({
 			'epoch': epoch + 1,
 			'arch': args.arch,
