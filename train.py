@@ -243,7 +243,7 @@ def main():
 		# evaluate on validation set
 		prec1, prec5 = validate(val_loader, model, criterion)
 
-		print("---------Test Result---------")
+		print("------Validation Result------")
 		print("   Top1 accuracy: {prec: .2f} %".format(prec=prec1.item()))
 		print("   Top5 accuracy: {prec: .2f} %".format(prec=prec5.item()))
 		print("-----------------------------")
