@@ -20,20 +20,19 @@ parser.add_argument('--fc-size', default=1024, type=int,
 parser.add_argument('--epochs', default=150, type=int, metavar='N', 
 					help='manual epoch number' + ' (default: 150)')
 parser.add_argument('--lr', default=0.01, type=float,
-                    metavar='LR', help='initial learning rate' + ' (default: 0.01)')
+					metavar='LR', help='initial learning rate' + ' (default: 0.01)')
 parser.add_argument('--optim', default='sgd',type=str,
 					help='optimizer' + ' (default: sgd)')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
-                    help='momentum' + ' (default: 0.9)')
+					help='momentum' + ' (default: 0.9)')
 parser.add_argument('--lr-step', default=50, type=float,
 					help='learning rate decay frequency' + ' (default: 50)')
 parser.add_argument('--batch-size', default=1, type=int,
-                    metavar='N', help='mini-batch size' + ' (default: 1)')
+					metavar='N', help='mini-batch size' + ' (default: 1)')
 parser.add_argument('--weight-decay', default=1e-4, type=float,
-                    metavar='W', help='weight decay (default: 1e-4)')					
+					metavar='W', help='weight decay (default: 1e-4)')					
 
 # other parameters			
 parser.add_argument('--workers', default=8, type=int, metavar='N',
-                    help='number of data loading workers (default: 8)')
-
+					help='number of data loading workers (default: 8)')
 

@@ -35,6 +35,8 @@ class loadedDataset(Dataset):
 		else:
 			file_path = class_path + '/' + sorted(os.listdir(class_path))[idx]
 
+		_, file_name = os.path.split(file_path)
+
 		frames = []
 
 		# print os.listdir(file_path)
@@ -58,4 +60,4 @@ class loadedDataset(Dataset):
 		frames = torch.stack(frames)
 		frames = frames[: -1] - frames[1:]
 
-		return frames, label
+		return frames, label, file_name

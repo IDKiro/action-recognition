@@ -14,6 +14,14 @@ pytorch 0.4.1 (CUDA 9.0):
 
 ## 数据结构
 
+输入指令下载示例数据:
+
+```
+python utils/download.py
+```
+
+或者直接从 [Google Driver](https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing) 上下载并解压.
+
 本项目的训练数据结构如下：
 
 ```
@@ -46,7 +54,8 @@ pytorch 0.4.1 (CUDA 9.0):
 因为项目使用的是视频帧对应的图片，所以需要在训练和测试前进行数据处理。本项目转换前的视频训练集数据结构如下：
 
 ```
-video_data/
+~/
+  video_data/
       .../ (directories of class names)
         ... (avi files)
 ```
@@ -66,6 +75,12 @@ python split_data.py train_root_directory valid_root_directory
 ## 开始训练
 
 输入指令以默认参数开始训练：
+
+```
+python train.py train_data_directory
+```
+
+默认可直接使用:
 
 ```
 python train.py data
@@ -90,10 +105,32 @@ python train.py data
 --workers N           number of data loading workers (default: 8)
 ```
 
+## 测试
+
 输入指令开始测试：
 
 ```
-python test.py data/save_model/model_best.pth.tar test_data
+python test.py model_directory test_data_directory
+```
+
+默认可直接使用:
+
+```
+python test.py data/save_model/model_best.pth.tar data/valid_data
+```
+
+## 预测
+
+输入指令开始测试：
+
+```
+python predict.py model_directory predict_data_directory
+```
+
+默认可直接使用:
+
+```
+python test.py data/save_model/model_best.pth.tar data/predict_data
 ```
 
 ## 神经网络的设计

@@ -19,7 +19,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
 	model.train()	# switch to train mode
 
-	for i, (input, target) in enumerate(train_loader):
+	for i, (input, target, _) in enumerate(train_loader):
 
 		# wrap inputs and targets in Variable
 		input_var = torch.autograd.Variable(input)
@@ -51,12 +51,12 @@ def train(train_loader, model, criterion, optimizer, epoch):
 				'lr {lr:.5f}\t'
 				'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
 				'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+				'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
 				epoch, i, len(train_loader),
 				lr=optimizer.param_groups[-1]['lr'],
 				loss=losses,
-                top1=top1,
-                top5=top5))
+				top1=top1,
+				top5=top5))
 
 
 def validate(val_loader, model, criterion):
@@ -67,7 +67,7 @@ def validate(val_loader, model, criterion):
 	# switch to evaluate mode
 	model.eval()
 
-	for i, (input, target) in enumerate(val_loader):
+	for i, (input, target, _) in enumerate(val_loader):
 
 		# target = target.cuda(async=True)
 		input_var = torch.autograd.Variable(input)
@@ -95,14 +95,14 @@ def validate(val_loader, model, criterion):
 					i, len(val_loader),
 					loss=losses,
 					top1=top1,
-                    top5=top5))
+					top5=top5))
 
 	return (top1.avg, top5.avg)
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    torch.save(state, os.path.join(args.data, 'save_model', filename))
-    if is_best:
-        shutil.copyfile(os.path.join(args.data, 'save_model', filename), os.path.join(args.data, 'save_model/model_best.pth.tar'))
+	torch.save(state, os.path.join(args.data, 'save_model', filename))
+	if is_best:
+		shutil.copyfile(os.path.join(args.data, 'save_model', filename), os.path.join(args.data, 'save_model/model_best.pth.tar'))
 
 class AverageMeter(object):
 	def __init__(self):
@@ -122,25 +122,25 @@ class AverageMeter(object):
 
 
 def adjust_learning_rate(optimizer, epoch):
-    if not epoch % args.lr_step and epoch:
-    	for param_group in optimizer.param_groups:
-    		param_group['lr'] = param_group['lr'] * 0.1
-    return optimizer
+	if not epoch % args.lr_step and epoch:
+		for param_group in optimizer.param_groups:
+			param_group['lr'] = param_group['lr'] * 0.1
+	return optimizer
 
 
 def accuracy(output, target, topk=(1,)):
-    maxk = max(topk)
-    batch_size = target.size(0)
+	maxk = max(topk)
+	batch_size = target.size(0)
 
-    _, pred = output.topk(maxk, 1, True, True)
-    pred = pred.t()
-    correct = pred.eq(target.view(1, -1).expand_as(pred))
+	_, pred = output.topk(maxk, 1, True, True)
+	pred = pred.t()
+	correct = pred.eq(target.view(1, -1).expand_as(pred))
 
-    res = []
-    for k in topk:
-        correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
-        res.append(correct_k.mul_(100.0 / batch_size))
-    return res
+	res = []
+	for k in topk:
+		correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+		res.append(correct_k.mul_(100.0 / batch_size))
+	return res
 
 
 def main():

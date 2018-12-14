@@ -18,7 +18,7 @@ parser.add_argument('model', metavar = 'DIR', help = 'path to model')
 parser.add_argument('data', metavar = 'DIR', help = 'path to dataset')
 
 
-def validate(val_loader, model, criterion):
+def validate(val_loader, model, criterion, classes):
 	losses = AverageMeter()
 	top1 = AverageMeter()
 	top5 = AverageMeter()
@@ -26,7 +26,8 @@ def validate(val_loader, model, criterion):
 	# switch to evaluate mode
 	model.eval()
 
-	for i, (input, target) in enumerate(val_loader):
+	for i, (input, target, name) in enumerate(val_loader):
+		print('File Name: ' + name[0])
 
 		# target = target.cuda(async=True)
 		input_var = torch.autograd.Variable(input)
@@ -42,12 +43,12 @@ def validate(val_loader, model, criterion):
 		losses.update(loss.item(), input.size(0))
 
 		# measure accuracy and record loss
-		prec1, prec5 = accuracy(output.data.cpu(), target, topk=(1, 5))
+		prec1, prec5 = accuracy(output.data.cpu(), target, classes, topk=(1, 5))
 		top1.update(prec1[0], input.size(0))
 		top5.update(prec5[0], input.size(0))
 
-		print ('Test: [{0}/{1}]\t'
-			'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
+		print ('---------- Test: [{0}/{1}]\t'
+			'Loss {loss.val:.4f} ({loss.avg:.4f})\t ----------'.format(
 			i, len(val_loader), loss=losses
 			))
 
@@ -70,12 +71,13 @@ class AverageMeter(object):
 		self.avg = self.sum / self.count
 
 
-def accuracy(output, target, topk=(1,)):
+def accuracy(output, target, classes, topk=(1,)):
 	maxk = max(topk)
 	batch_size = target.size(0)
 
 	_, pred = output.topk(maxk, 1, True, True)
 	pred = pred.t()
+	print('Predict: ' + classes[pred[0][0].numpy()] + '		Actual: ' + classes[target[0].numpy()])
 	correct = pred.eq(target.view(1, -1).expand_as(pred))
 
 	res = []
@@ -89,6 +91,7 @@ def main():
 	args = parser.parse_args()
 
 	testdir = args.data
+	classes = sorted(os.listdir(testdir))
 
 	normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
 									std=[0.339, 0.224, 0.225])
@@ -129,7 +132,7 @@ def main():
 	criterion = nn.CrossEntropyLoss(reduction='none')
 	criterion = criterion.cuda()
 
-	prec1, prec5 = validate(test_loader, model, criterion)
+	prec1, prec5 = validate(test_loader, model, criterion ,classes)
 
 	print("---------Test Result---------")
 	print("   Top1 accuracy: {prec: .2f} %".format(prec=prec1.item()))

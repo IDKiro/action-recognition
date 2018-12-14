@@ -16,6 +16,14 @@ pytorch 0.4.1 (CUDA 9.0):
 
 ## Data
 
+Use the following command to download the example data:
+
+```
+python utils/download.py
+```
+
+Or download directly from [https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing](https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing) and unzip.
+
 The training dataset structure:
 
 ```
@@ -46,7 +54,8 @@ The test dataset structure:
 The data structure of the video training dataset:
 
 ```
-video_data/
+~/
+  video_data/
       .../ (directories of class names)
         ... (avi files)
 ```
@@ -63,9 +72,15 @@ Use `split_data.py` to move some of the training dataset to a validation dataset
 python split_data.py train_root_directory valid_root_directory
 ```
 
-## Start
+## Train
 
 Use the following command to train the model:
+
+```
+python train.py train_data_directory
+```
+
+For default:
 
 ```
 python train.py data
@@ -90,10 +105,32 @@ Optional parameters of command:
 --workers N           number of data loading workers (default: 8)
 ```
 
+## Test
+
 Use the following commands to test:
 
 ```
-python test.py data/save_model/model_best.pth.tar test_data
+python test.py model_directory test_data_directory
+```
+
+For default:
+
+```
+python test.py data/save_model/model_best.pth.tar data/valid_data
+```
+
+## Predict
+
+Use the following commands to predict:
+
+```
+python predict.py model_directory predict_data_directory
+```
+
+For default:
+
+```
+python test.py data/save_model/model_best.pth.tar data/predict_data
 ```
 
 ## Network
