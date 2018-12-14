@@ -1,4 +1,4 @@
-# Action Recognition PyTorch
+# Action Recognition
 
 The network are based on CNNs and LSTMs.
 
