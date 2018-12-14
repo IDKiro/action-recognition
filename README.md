@@ -22,7 +22,7 @@ Use the following command to download the example data:
 python utils/download.py
 ```
 
-Or download directly from [https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing](https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing) and unzip.
+Or download directly from [Google Drive](https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing) and unzip.
 
 The training dataset structure:
 

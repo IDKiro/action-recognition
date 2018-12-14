@@ -20,7 +20,7 @@ pytorch 0.4.1 (CUDA 9.0):
 python utils/download.py
 ```
 
-或者直接从 [Google Driver](https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing) 上下载并解压.
+或者直接从 [Google Drive](https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing) 上下载并解压.
 
 本项目的训练数据结构如下：
 
