@@ -19,7 +19,7 @@ pytorch 0.4.1 (CUDA 9.0):
 Use the following command to download the example data:
 
 ```
-python utils/download.py
+python data/download.py
 ```
 
 Or download directly from [Google Drive](https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing) and unzip.

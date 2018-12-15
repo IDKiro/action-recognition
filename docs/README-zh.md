@@ -17,7 +17,7 @@ pytorch 0.4.1 (CUDA 9.0):
 输入指令下载示例数据:
 
 ```
-python utils/download.py
+python data/download.py
 ```
 
 或者直接从 [Google Drive](https://drive.google.com/file/d/1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2/view?usp=sharing) 上下载并解压.
