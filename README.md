@@ -63,13 +63,13 @@ The data structure of the video training dataset:
 Use `video2jpg.py` under the `utils` folder to convert avi to jpg:
 
 ```
-python video2jpg.py video_root_directory image_root_directory
+python utils/video2jpg.py video_root_directory image_root_directory
 ```
 
 Use `split_data.py` to move some of the training dataset to a validation dataset:
 
 ```
-python split_data.py train_root_directory valid_root_directory
+python utils/split_data.py train_root_directory valid_root_directory
 ```
 
 ## Train
@@ -140,7 +140,3 @@ This project is based on CNNs and LSTMs.
 <div align="center">
   <img src="imgs/lstm.jpg">
 </div>
-
-## Reference
-
-[https://github.com/chaoyuaw/pytorch-coviar.git](https://github.com/chaoyuaw/pytorch-coviar.git)

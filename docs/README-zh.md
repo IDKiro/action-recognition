@@ -63,13 +63,13 @@ python data/download.py
 使用 `utils` 文件夹下的 `video2jpg.py` 进行转换：
 
 ```
-python video2jpg.py video_root_directory image_root_directory
+python utils/video2jpg.py video_root_directory image_root_directory
 ```
 
 虽然数据集经过处理已经可以作为神经网络的输入，但是还需要将训练集进行划分，分为训练集和交叉验证集，所以编写了 `split_data.py`：
 
 ```
-python split_data.py train_root_directory valid_root_directory
+python utils/split_data.py train_root_directory valid_root_directory
 ```
 
 ## 开始训练
