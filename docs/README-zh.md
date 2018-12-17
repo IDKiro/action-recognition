@@ -142,7 +142,3 @@ python test.py data/save_model/model_best.pth.tar data/predict_data
 <div align="center">
   <img src="/imgs/lstm.jpg">
 </div>
-
-## 参考
-
-[https://github.com/chaoyuaw/pytorch-coviar.git](https://github.com/chaoyuaw/pytorch-coviar.git)
