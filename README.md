@@ -138,5 +138,5 @@ python test.py data/save_model/model_best.pth.tar data/predict_data
 This project is based on CNNs and LSTMs. 
 
 <div align="center">
-  <img src="imgs/lstm.jpg">
+  <img src="docs/imgs/lstm.jpg">
 </div>
