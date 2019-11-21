@@ -34,14 +34,6 @@ Use the following command to train the model:
 python train.py
 ```
 
-## Predict
-
-Use the following command to predict:
-
-```
-python predict.py
-```
-
 ## Network
 
 This project is based on CNNs and LSTMs. 
