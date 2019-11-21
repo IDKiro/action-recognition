@@ -57,7 +57,4 @@ class loadedDataset(Dataset):
 				frame = self.transform[0](frame)
 			frames.append(frame)
 
-		frames = torch.stack(frames)
-		frames = frames[: -1] - frames[1:]
-
 		return frames, label, file_name

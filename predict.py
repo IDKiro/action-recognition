@@ -7,16 +7,14 @@ import torchvision.models as models
 from torchvision import transforms, utils
 from torch.autograd import Variable
 
-import dataset
-from model import *
+from dataset import loadedDataset
+from model import LSTMModel
 
 
 parser = argparse.ArgumentParser(description = 'Predicting')
-
-
-parser.add_argument('model', metavar = 'DIR', help = 'path to model')
-parser.add_argument('data', metavar = 'DIR', help = 'path to dataset')
-
+parser.add_argument('--model', default='./save_model/model_best.pth.tar', help = 'path to model')
+parser.add_argument('--data', default='./data/valid/', help = 'path to dataset')
+args = parser.parse_args()
 
 def predict(predict_loader, model):
 	# switch to evaluate mode
@@ -28,14 +26,12 @@ def predict(predict_loader, model):
 	with open('./data/classes.txt', 'r') as cfile:
 		classes = cfile.readlines()
 
-	for i, (input, _, name) in enumerate(predict_loader):
-		input_var = torch.autograd.Variable(input).cuda()
+	for i, (inputs, _, name) in enumerate(predict_loader):
+		input_var = [input.cuda() for input in inputs]
 
 		# compute output
-		output = model(input_var[0])	
-		weight = Variable(torch.Tensor(range(output.shape[0])) / sum(range(output.shape[0]))).cuda().view(-1,1).repeat(1, output.shape[1])
-		output = torch.mul(output, weight)
-		output = torch.mean(output, dim=0).unsqueeze(0).data.cpu()
+		output = model(input_var)
+		output = output[:, -1, :]
 		_, pred = output.topk(1, 1, True, True)
 		pred = pred.t()
 		print('File Name: ' + name[0])
@@ -48,8 +44,8 @@ def predict(predict_loader, model):
 	# 	file.write(str(fp))
 	# file.close()
 
-def main():
-	args = parser.parse_args()
+
+if __name__ == '__main__':
 
 	predictdir = args.data
 
@@ -70,9 +66,9 @@ def main():
 				)
 
 	predict_loader = torch.utils.data.DataLoader(
-		dataset.loadedDataset(predictdir, transform),
+		loadedDataset(predictdir, transform),
 		batch_size=1, shuffle=False,
-		num_workers=8, pin_memory=True)
+		num_workers=0, pin_memory=True)
 
 	if os.path.exists(args.model):
 		# load existing model
@@ -86,9 +82,6 @@ def main():
 		model.load_state_dict(model_info['state_dict'])
 	else:
 		print("Error: load model failed!")
-		return
+		exit(1)
 
 	predict(predict_loader, model)
-
-if __name__ == '__main__':
-	main()

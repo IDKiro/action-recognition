@@ -2,6 +2,7 @@ from __future__ import print_function, division
 import os
 import sys
 import subprocess
+import shutil
 
 def class_process(dir_path, dst_dir_path, class_name, maxSize=1024):
 	class_path = os.path.join(dir_path, class_name)
@@ -10,7 +11,7 @@ def class_process(dir_path, dst_dir_path, class_name, maxSize=1024):
 
 	dst_class_path = os.path.join(dst_dir_path, class_name)
 	if not os.path.exists(dst_class_path):
-		os.mkdir(dst_class_path)
+		os.makedirs(dst_class_path)
 
 	for file_name in os.listdir(class_path):
 		if '.avi' not in file_name:
@@ -29,11 +30,11 @@ def class_process(dir_path, dst_dir_path, class_name, maxSize=1024):
 				if not os.path.exists(os.path.join(dst_directory_path, 'image_00001.jpg')):
 					subprocess.call('rm -r \"{}\"'.format(dst_directory_path), shell=True)
 					print('remove {}'.format(dst_directory_path))
-					os.mkdir(dst_directory_path)
+					os.makedirs(dst_directory_path)
 				else:
 					continue
 			else:
-				os.mkdir(dst_directory_path)
+				os.makedirs(dst_directory_path)
 		except:
 			print(dst_directory_path)
 			continue
@@ -45,8 +46,30 @@ def class_process(dir_path, dst_dir_path, class_name, maxSize=1024):
 		subprocess.call(cmd, shell=True)
 		print('\n')
 
+
+def class_move(dir_path, valid_dir_path, class_name):
+	class_path = os.path.join(dir_path, class_name)
+	if not os.path.isdir(class_path):
+		return
+
+	valid_class_path = os.path.join(valid_dir_path, class_name)
+	if not os.path.exists(valid_class_path):
+		os.makedirs(valid_class_path)
+
+	for i, (file_name) in enumerate(os.listdir(class_path)):
+		name, ext = os.path.splitext(file_name)
+		train_directory_path = os.path.join(class_path, name)
+		valid_directory_path = os.path.join(valid_class_path, name)
+
+		if i % 10 == 0:
+			shutil.move(train_directory_path, valid_directory_path)
+
+
 if __name__=="__main__":
-	dir_path = sys.argv[1]
-	dst_dir_path = sys.argv[2]
+	dir_path = './data/video/'
+	dst_dir_path = './data/train/'
+	valid_dir_path = './data/valid/'
+
 	for class_name in os.listdir(dir_path):
 		class_process(dir_path, dst_dir_path, class_name)
+		class_move(dst_dir_path, valid_dir_path, class_name)

@@ -1,26 +1,13 @@
 import requests
 import os
+import glob
 
-def download_file_from_google_drive(id, destination):
-    URL = "https://docs.google.com/uc?export=download"
-
+def download_file(URL, destination):
     session = requests.Session()
-
-    response = session.get(URL, params = { 'id' : id }, stream = True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = { 'id' : id, 'confirm' : token }
-        response = session.get(URL, params = params, stream = True)
+    response = session.get(URL, stream = True)
 
     save_response_content(response, destination)    
 
-def get_confirm_token(response):
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            return value
-
-    return None
 
 def save_response_content(response, destination):
     CHUNK_SIZE = 32768
@@ -31,8 +18,15 @@ def save_response_content(response, destination):
                 f.write(chunk)
 
 
+print('Downloading dataset...')
+if not os.path.isfile('data/hmdb51_org.rar'):
+    download_file('http://serre-lab.clps.brown.edu/wp-content/uploads/2013/10/hmdb51_org.rar', 'data/hmdb51_org.rar')
 
-print('Dowloading Data (6.9GB)')
-download_file_from_google_drive('1SI4mAeupeYQXbRN0zHqtfttULGHpXmw2', 'data/data.zip')
+if not os.path.isdir('data/video'):
+    os.makedirs('data/video')
+    
+os.system('unrar e data/hmdb51_org.rar data/video')
 
-os.system('unzip data/data.zip -d data')
+filenames = glob.glob('data/video/*.rar')
+for file_name in filenames:
+    os.system('unrar x %s data/video' %file_name)

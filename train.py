@@ -1,125 +1,35 @@
 import os
 import shutil
-
+import argparse
 import torch
 import torch.nn as nn
 import torchvision.models as models
 from torchvision import transforms, utils
-from torch.autograd import Variable
 import torch.nn.functional as F
 
-import dataset
-from model import *
-from train_options import parser
-
-def train(train_loader, model, criterion, optimizer, epoch):
-	losses = AverageMeter()
-	top1 = AverageMeter()
-	top5 = AverageMeter()
-
-	model.train()	# switch to train mode
-
-	for i, (input, target, _) in enumerate(train_loader):
-
-		# wrap inputs and targets in Variable
-		input_var = torch.autograd.Variable(input)
-		target_var = torch.autograd.Variable(target)
-		input_var, target_var = input_var.cuda(), target_var.cuda()
-
-		# compute output
-		output = model(input_var[0])
-		weight = Variable(torch.Tensor(range(output.shape[0])) / sum(range(output.shape[0]))).cuda().view(-1,1).repeat(1, output.shape[1])
-		output = torch.mul(output, weight)
-		output = torch.mean(output, dim=0).unsqueeze(0)
-		loss = criterion(output, target_var)
-		losses.update(loss.item(), input.size(0))
-
-		# compute accuracy
-		prec1, prec5 = accuracy(output.data.cpu(), target, topk=(1, 5))
-		top1.update(prec1[0], input.size(0))
-		top5.update(prec5[0], input.size(0))
-
-		# zero the parameter gradients
-		optimizer.zero_grad()
-
-		# compute gradient
-		loss.backward()
-		optimizer.step()
-
-		if i % 10 == 0:
-			print('Epoch: [{0}][{1}/{2}]\t'
-				'lr {lr:.5f}\t'
-				'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-				'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
-				'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-				epoch, i, len(train_loader),
-				lr=optimizer.param_groups[-1]['lr'],
-				loss=losses,
-				top1=top1,
-				top5=top5))
+from dataset import loadedDataset
+from model import LSTMModel
+from utils import AverageMeter
 
 
-def validate(val_loader, model, criterion):
-	losses = AverageMeter()
-	top1 = AverageMeter()
-	top5 = AverageMeter()
+parser = argparse.ArgumentParser(description = 'Training')
+parser.add_argument('--model', default='./save_model/', type=str, help = 'path to model')
+parser.add_argument('--arch', default = 'resnet50', help = 'model architecture')
+parser.add_argument('--lstm-layers', default=2, type=int, help='number of lstm layers')
+parser.add_argument('--hidden-size', default=512, type=int, help='output size of LSTM hidden layers')
+parser.add_argument('--fc-size', default=1024, type=int, help='size of fully connected layer before LSTM')					
+parser.add_argument('--epochs', default=200, type=int, help='manual epoch number')
+parser.add_argument('--lr', default=1e-4, type=float, help='initial learning rate')
+parser.add_argument('--lr-step', default=100, type=float, help='learning rate decay frequency')
+parser.add_argument('--batch-size', default=8, type=int, help='mini-batch size')						
+parser.add_argument('--workers', default=8, type=int, help='number of data loading workers')
+args = parser.parse_args()
 
-	# switch to evaluate mode
-	model.eval()
-
-	for i, (input, target, _) in enumerate(val_loader):
-
-		# target = target.cuda(async=True)
-		input_var = torch.autograd.Variable(input)
-		target_var = torch.autograd.Variable(target)
-		input_var, target_var = input_var.cuda(), target_var.cuda()
-
-		# compute output
-		output = model(input_var[0])
-		weight = Variable(torch.Tensor(range(output.shape[0])) / sum(range(output.shape[0]))).cuda().view(-1,1).repeat(1, output.shape[1])
-		output = torch.mul(output, weight)
-		output = torch.mean(output, dim=0).unsqueeze(0)
-		loss = criterion(output, target_var)
-		losses.update(loss.item(), input.size(0))
-
-		# compute accuracy
-		prec1, prec5 = accuracy(output.data.cpu(), target, topk=(1, 5))
-		top1.update(prec1[0], input.size(0))
-		top5.update(prec5[0], input.size(0))
-
-		if i % 10 == 0:
-			print ('Test: [{0}/{1}]\t'
-					'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-					'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
-					'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-					i, len(val_loader),
-					loss=losses,
-					top1=top1,
-					top5=top5))
-
-	return (top1.avg, top5.avg)
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-	torch.save(state, os.path.join(args.data, 'save_model', filename))
+	torch.save(state, os.path.join('./save_model/', filename))
 	if is_best:
-		shutil.copyfile(os.path.join(args.data, 'save_model', filename), os.path.join(args.data, 'save_model/model_best.pth.tar'))
-
-class AverageMeter(object):
-	def __init__(self):
-		self.reset()
-
-	def reset(self):
-		self.val = 0
-		self.avg = 0
-		self.sum = 0
-		self.count = 0
-
-	def update(self, val, n=1):
-		self.val = val
-		self.sum += val * n
-		self.count += n
-		self.avg = self.sum / self.count
-
+		shutil.copyfile(os.path.join('./save_model/', filename), './save_model/model_best.pth.tar')
 
 def adjust_learning_rate(optimizer, epoch):
 	if not epoch % args.lr_step and epoch:
@@ -143,15 +53,87 @@ def accuracy(output, target, topk=(1,)):
 	return res
 
 
-def main():
-	global args
+def train(train_loader, model, criterion, optimizer, epoch):
+	losses = AverageMeter()
+	top1 = AverageMeter()
+	top5 = AverageMeter()
 
-	best_prec = 0
-	args = parser.parse_args()
+	model.train()	# switch to train mode
 
+	for i, (inputs, target, _) in enumerate(train_loader):
+		input_var = [input.cuda() for input in inputs]
+		target_var = target.cuda()
+
+		# compute output
+		output = model(input_var)
+		output = output[:, -1, :]
+		loss = criterion(output, target_var)
+		losses.update(loss.item(), 1)
+
+		# compute accuracy
+		prec1, prec5 = accuracy(output.data.cpu(), target, topk=(1, 5))
+		top1.update(prec1[0].item(), 1)
+		top5.update(prec5[0].item(), 1)
+
+		# zero the parameter gradients
+		optimizer.zero_grad()
+
+		# compute gradient
+		loss.backward()
+		optimizer.step()
+
+		print('Epoch: [{0}][{1}/{2}]\t'
+			'lr {lr:.5f}\t'
+			'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+			'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
+			'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+			epoch, i, len(train_loader),
+			lr=optimizer.param_groups[-1]['lr'],
+			loss=losses,
+			top1=top1,
+			top5=top5))
+
+
+def validate(val_loader, model, criterion):
+	losses = AverageMeter()
+	top1 = AverageMeter()
+	top5 = AverageMeter()
+
+	# switch to evaluate mode
+	model.eval()
+
+	for i, (inputs, target, _) in enumerate(val_loader):
+		input_var = [input.cuda() for input in inputs]
+		target_var = target.cuda()
+
+		# compute output
+		with torch.no_grad():
+			output = model(input_var)
+			output = output[:, -1, :]
+			loss = criterion(output, target_var)
+			losses.update(loss.item(), 1)
+
+		# compute accuracy
+		prec1, prec5 = accuracy(output.data.cpu(), target, topk=(1, 5))
+		top1.update(prec1[0].item(), 1)
+		top5.update(prec5[0].item(), 1)
+
+		print ('Test: [{0}/{1}]\t'
+				'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+				'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
+				'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+				i, len(val_loader),
+				loss=losses,
+				top1=top1,
+				top5=top5))
+
+	return (top1.avg, top5.avg)
+
+
+if __name__ == '__main__':
 	# Data Transform and data loading
-	traindir = os.path.join(args.data, 'train_data')
-	valdir = os.path.join(args.data, 'valid_data')
+	traindir = './data/train/'
+	valdir = './data/valid/'
 
 	normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
 									std=[0.339, 0.224, 0.225])
@@ -169,65 +151,53 @@ def main():
 									)
 				)
 
-	train_dataset = dataset.loadedDataset(traindir, transform)
+	train_dataset = loadedDataset(traindir, transform)
+	val_dataset = loadedDataset(valdir, transform)
 
-	train_loader = torch.utils.data.DataLoader(train_dataset,
+	train_loader = torch.utils.data.DataLoader(
+		train_dataset,
 		batch_size=args.batch_size, shuffle=True,
 		num_workers=args.workers, pin_memory=True)
-
 	val_loader = torch.utils.data.DataLoader(
-		dataset.loadedDataset(valdir, transform),
+		val_dataset,
 		batch_size=args.batch_size, shuffle=False,
 		num_workers=args.workers, pin_memory=True)
 
-
-
-	if os.path.exists(args.model):
+	if os.path.exists(os.path.join(args.model, 'checkpoint.pth.tar')):
 		# load existing model
-		model_info = torch.load(args.model)
+		model_info = torch.load(os.path.join(args.model, 'checkpoint.pth.tar'))
 		print("==> loading existing model '{}' ".format(model_info['arch']))
 		original_model = models.__dict__[model_info['arch']](pretrained=False)
 		model = LSTMModel(original_model, model_info['arch'],
 			model_info['num_classes'], model_info['lstm_layers'], model_info['hidden_size'], model_info['fc_size'])
-		print(model)
+		# print(model)
 		model.cuda()
 		model.load_state_dict(model_info['state_dict'])
 		best_prec = model_info['best_prec']
 		cur_epoch = model_info['epoch']
 	else:
+		if not os.path.isdir(args.model):
+			os.makedirs(args.model)
 		# load and create model
 		print("==> creating model '{}' ".format(args.arch))
-
 		original_model = models.__dict__[args.arch](pretrained=True)
 		model = LSTMModel(original_model, args.arch,
 			len(train_dataset.classes), args.lstm_layers, args.hidden_size, args.fc_size)
-		print(model)
+		# print(model)
 		model.cuda()
 		cur_epoch = 0
 
 	# loss criterion and optimizer
-	criterion = nn.CrossEntropyLoss(reduction='none')
+	criterion = nn.CrossEntropyLoss()
 	criterion = criterion.cuda()
 
-	if args.optim == 'sgd':
-		optimizer = torch.optim.SGD([{'params': model.fc_pre.parameters()},
-									{'params': model.rnn.parameters()},
-									{'params': model.fc.parameters()}],
-									lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+	optimizer = torch.optim.Adam([{'params': model.fc_pre.parameters()},
+								{'params': model.rnn.parameters()},
+								{'params': model.fc.parameters()}],
+								lr=args.lr)
 
-	elif args.optim == 'rmsprop':
-		optimizer = torch.optim.RMSprop([{'params': model.fc_pre.parameters()},
-									{'params': model.rnn.parameters()},
-									{'params': model.fc.parameters()}],
-									lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-
-	elif args.optim == 'adam':
-		optimizer = torch.optim.Adam([{'params': model.fc_pre.parameters()},
-									{'params': model.rnn.parameters()},
-									{'params': model.fc.parameters()}],
-									lr=args.lr, weight_decay=args.weight_decay)
-
-
+	best_prec = 0
+	
 	# Training on epochs
 	for epoch in range(cur_epoch, args.epochs):
 
@@ -244,8 +214,8 @@ def main():
 		prec1, prec5 = validate(val_loader, model, criterion)
 
 		print("------Validation Result------")
-		print("   Top1 accuracy: {prec: .2f} %".format(prec=prec1.item()))
-		print("   Top5 accuracy: {prec: .2f} %".format(prec=prec5.item()))
+		print("   Top1 accuracy: {prec: .2f} %".format(prec=prec1))
+		print("   Top5 accuracy: {prec: .2f} %".format(prec=prec5))
 		print("-----------------------------")
 
 		# remember best top1 accuracy and save checkpoint
@@ -261,6 +231,3 @@ def main():
 			'state_dict': model.state_dict(),
 			'best_prec': best_prec,
 			'optimizer' : optimizer.state_dict(),}, is_best)
-
-if __name__ == '__main__':
-	main()

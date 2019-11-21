@@ -1,5 +1,10 @@
 # Add by user
 .vscode/
+data/*.rar
+data/train
+data/valid
+data/video
+*.tar
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

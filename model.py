@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 from torchvision import transforms, utils
-from torch.autograd import Variable
 
 
 class LSTMModel(nn.Module):
@@ -37,6 +36,18 @@ class LSTMModel(nn.Module):
 			self.fc = nn.Linear(hidden_size, num_classes)
 			self.modelName = 'resnet18_lstm'
 
+		elif arch.startswith('resnet34'):
+			self.features = nn.Sequential(*list(original_model.children())[:-1])
+			for i, param in enumerate(self.features.parameters()):
+				param.requires_grad = False
+			self.fc_pre = nn.Sequential(nn.Linear(512, fc_size), nn.Dropout())
+			self.rnn = nn.LSTM(input_size = fc_size,
+						hidden_size = hidden_size,
+						num_layers = lstm_layers,
+						batch_first = True)
+			self.fc = nn.Linear(hidden_size, num_classes)
+			self.modelName = 'resnet34_lstm'
+
 		elif arch.startswith('resnet50'):
 			self.features = nn.Sequential(*list(original_model.children())[:-1])
 			for i, param in enumerate(self.features.parameters()):
@@ -53,19 +64,19 @@ class LSTMModel(nn.Module):
 			raise Exception("This architecture has not been supported yet")
 
 	def init_hidden(self, num_layers, batch_size):
-		return (Variable(torch.zeros(num_layers, batch_size, self.hidden_size)).cuda(),
-				Variable(torch.zeros(num_layers, batch_size, self.hidden_size)).cuda())
+		return (torch.zeros(num_layers, batch_size, self.hidden_size).cuda(),
+				torch.zeros(num_layers, batch_size, self.hidden_size).cuda())
 
 	def forward(self, inputs, hidden=None, steps=0):
 		length = len(inputs)
-		fs = Variable(torch.zeros(length, self.rnn.input_size)).cuda()
+		fs = torch.zeros(inputs[0].size(0), length, self.rnn.input_size).cuda()
+
 		for i in range(length):
-			f = self.features(inputs[i].unsqueeze(0))
+			f = self.features(inputs[i])
 			f = f.view(f.size(0), -1)
 			f = self.fc_pre(f)
-			fs[i] = f
-		fs = fs.unsqueeze(0)
+			fs[:, i, :] = f
 
 		outputs, hidden = self.rnn(fs, hidden)
-		outputs = self.fc(outputs[0])
+		outputs = self.fc(outputs)
 		return outputs
